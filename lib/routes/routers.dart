@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:tgo_flutter_sdk/module/module.dart';
 
 class Routes {
-  static String root = "/";
-  static String sessionList = "/session_list"; // 会话列表
-
   static void configureRoutes(Router router) {
     router.notFoundHandler = new Handler(
         handlerFunc:
@@ -13,12 +10,15 @@ class Routes {
     List<Module> modules = TGO.getAllModule();
     if (modules != null && modules.length > 0) {
       for (Module module in modules) {
-        router.define(module.path,
-            handler: Handler(
-              handlerFunc: (BuildContext context,Map<String,List<String>> params){
-                 return defaultScaffold(module.getWidget(context,params),title: module.title);
-              },
-            ));
+        List<Point> points = module.getAllPoint();
+        for(Point point in points) {
+          router.define(point.path,
+              handler: Handler(
+                handlerFunc: (BuildContext context,Map<String,List<String>> params){
+                  return defaultScaffold(point.handler(context,params),title: point.title??"");
+                },
+              ));
+        }
       }
     }
   }
